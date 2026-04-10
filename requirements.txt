@@ -1,0 +1,9 @@
+torch>=2.0.0
+torchvision
+opencv-python
+streamlit
+numpy
+pillow
+matplotlib
+scikit-image
+pyyaml

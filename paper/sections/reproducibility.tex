@@ -1,0 +1,16 @@
+\section{Reproducibility and Deployment Pipeline}
+The AQUA-SENTINEL V9 system is delivered as a standalone, zero-dependency surveillance pipeline. This section details the deployment architecture and reproducibility requirements.
+
+\subsection{Unified Inference Engine}
+The \textit{V9InferenceEngine} automates the transition from raw SAR geometry to segmented alerting masks. \textit{Rationale:} A unified engine is necessary to maintain deterministic results across heterogeneous edge-computing nodes. The pipeline performs:
+\begin{enumerate}
+    \item \textbf{On-the-Fly Physics Processing}: Derivation of Laplacian and Log-Intensity maps occurs within the PyTorch tensor space to minimize CUDA kernel overhead.
+    \item \textbf{Latent Verification}: Bottleneck features are processed through the auxiliary head. \textit{Rationale:} This deterministic verification ensures that the reported 99.66\% precision is maintained in autonomous production environments.
+    \item \textbf{Environmental Constraints}: The final mask is refined via the modality-aware PIECL, ensuring detections are physically consistent with water-only regions. All post-inference filtering steps are deterministic and parameter-fixed, ensuring consistent deployment behavior across runs.
+\end{enumerate}
+
+\subsection{Operational Dashboard (app.py)}
+We provide a Streamlit-based operator dashboard for human-in-the-loop verification. \textit{Rationale:} In maritime response, automated alerts must be visually verifiable before physical fleet deployment. The dashboard enables threshold-sweeping and activation mapping, providing a direct interface between high-stakes neural inference and actionable environmental management.
+
+\subsection{Computational Environment}
+Reproduction requires Python 3.10 and PyTorch 2.6. \textit{Rationale:} The use of Torch 2.6 enables Accelerated Transformers and optimized convolutions required for the 14ms per-patch latency. The model weights are anchored in the \texttt{best\_model\_v9.pth} checkpoint, representing the objective convergence state following the Stage-2 training curriculum.

@@ -1,0 +1,13 @@
+\section{Experimental Setup}
+\subsection{Dataset Specification}
+The PGDE framework is validated on a high-resolution multimodal dataset (7,528 image-mask pairs, $256 \times 256$). \textit{Rationale:} The inclusion of platform shadows and biogenic calm zones is necessary for training the auxiliary suppression logic to resolve the Intensity-Damping Paradox. Without this balanced lookalike corpus, the model would over-fit to simple dark-pixel intensity rather than physical boundary derivatives.
+
+\subsection{Two-Phase Training Curriculum}
+\textit{Rationale:} Direct end-to-end training initially yielded gradient instability due to the misalignment between ImageNet-pre-trained weights and SAR backscatter distributions. Stability is achieved through a structured curriculum:
+\begin{enumerate}
+    \item \textbf{Latent Alignment (Epochs 0--9)}: Encoders remain frozen while Gated Fusion Modules (GFM) optimize the cross-modal mappings.
+    \item \textbf{Global Calibration (Epochs 10--34)}: End-to-end refinement unfreezes the encoders to adapt the deep activations to the physics-guided boundary tokens.
+\end{enumerate}
+
+\subsection{Objective Function and Thresholding}
+Optimization uses Adam ($LR=1 \times 10^{-4}$) with a ReduceLROnPlateau scheduler. \textit{Rationale:} A composite loss (Dice + BCE + Focal) is required to resolve the extreme class imbalance (1:1000) while maintaining stable global segmentation boundaries. Performance is quantified across a threshold sweep $[0.30, 0.70]$, with the operational threshold fixed at 0.50 to prioritize the 99.66\% precision required for autonomous surveillance.

@@ -1,0 +1,15 @@
+\section{Implementation Details}
+This section details the computational environment and optimization strategies required to reproduce the AQUA-SENTINEL V9 performance profile.
+
+\subsection{Computational Infrastructure}
+Models were trained using NVIDIA L4 Tensor Core GPUs (24GB GDDR6 vRAM). \textit{Rationale:} The L4 architecture's focus on high-throughput inference is necessary for satisfying the 14ms per-patch latency requirement of real-time satellite telemetry. The host environment utilized 128GB of DDR5 memory to prevent I/O bottlenecks during the processing of high-resolution LADOS multi-modal pairs.
+
+\subsection{Optimization and Objective Functions}
+We utilize the Adam optimizer with decoupled weight decay ($1 \times 10^{-4}$). \textit{Rationale:} Weight decay is critical to prevent the encoders from over-fitting to the high-variance speckle noise inherent in SAR intensity data. The objective function is a composite loss $\mathcal{L}_{\text{total}}$:
+\begin{equation}
+\mathcal{L}_{\text{total}} = \lambda_1 \mathcal{L}_{\text{Dice}} + \lambda_2 \mathcal{L}_{\text{BCE}} + \lambda_3 \mathcal{L}_{\text{Focal}}
+\end{equation}
+\textit{Rationale:} Focal loss ($\mathcal{L}_{\text{Focal}}$) is integrated to resolve the extreme class imbalance (typically 1:1000) between oil spill pixels and the surrounding oceanic background. The Dice component ensures global segment consistency, while BCE provides stable gradient flow during initial training epochs.
+
+\subsection{Runtime Environment}
+The system is built on PyTorch 2.6. \textit{Rationale:} This stack enables the use of TorchScript for production-level inference, ensuring that the Laplacian and log-intensity transforms are computed with minimal overhead. The unified \textit{V9InferenceEngine} eliminates dependency on external pre-processing, allowing for zero-latency deployment on edge-computing satellite nodes.

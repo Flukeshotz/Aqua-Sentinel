@@ -1,0 +1,23 @@
+\section{Post-Inference Environmental Constraint Layer (PIECL)}
+The standard neural segmentation paradigm treats Synthetic Aperture Radar (SAR) imagery as simple intensity distributions, often failing to resolve the physical boundary conditions of the oceanic surface. This results in significant False-Positive (FP) detections on rigid infrastructure, such as ships, oil platforms, and coastal landmasses. To resolve this ambiguity, we incorporate the Post-Inference Environmental Constraint Layer (PIECL), a modality-aware reasoning stage that enforces physical consistency on the neural output during the deployment phase.
+
+\subsection{Mathematical Formulation}
+The final deployment decision mask $M_{\text{final}}$ is derived as the intersection of the neural prediction $M_{\text{pred}}$ and two domain-driven suppression masks:
+\begin{equation}
+M_{\text{final}} = M_{\text{pred}} \cap W_{\text{mask}} \cap T_{\text{filter}}
+\end{equation}
+where $W_{\text{mask}}$ enforces binary water-region constraints and $T_{\text{filter}}$ performs high-frequency texture suppression.
+
+\subsection{SAR-Specific Physical Constraints}
+For monochromatic SAR data, the system utilizes a multi-stage Backscatter Water Mask $W_{\text{mask}}^{\text{SAR}}$ defined by local intensity $I_{\text{norm}}$ and standard deviation $\sigma_{\text{local}}$:
+\begin{equation}
+W_{\text{mask}}^{\text{SAR}} = f(I_{\text{norm}}, \sigma_{\text{local}}) = \{ p \in I \mid I < \tau_i, \sigma < \tau_\sigma \}
+\end{equation}
+where $\tau_i$ and $\tau_\sigma$ represent intensity and variance thresholds characteristic of undisturbed fluid surfaces. In addition to intensity and variance constraints, structural artifacts are further identified through edge-density analysis using gradient operators. Regions exhibiting high edge density are indicative of rigid, man-made structures (e.g., vessels, docks) and are excluded from the valid spill region. This ensures that the constraint layer differentiates between fluid surface damping and geometric backscatter patterns characteristic of infrastructure.
+
+\subsection{Texture-Based Suppression ($T_{\text{filter}}$)}
+We utilize the Laplacian magnitude $\mathcal{T}$ to resolve rigid objects through second-order intensity variance:
+\begin{equation}
+T_{\text{filter}} = \begin{cases} 1 & \text{if } |\nabla^2 I| < \tau_t \\ 0 & \text{otherwise} \end{cases}
+\end{equation}
+Crude oil spills, characterized by viscous, low-frequency surface damping, exhibit a near-zero Laplacian response. In contrast, metallic and geometric infrastructure yield sharp gradient responses ($|\nabla^2 I| > \tau_t$). This stage ensures that the reported 99.66\% precision is physically grounded in deployment-ready environmental constraints.

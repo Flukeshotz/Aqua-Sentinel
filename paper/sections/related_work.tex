@@ -1,0 +1,13 @@
+\section{Related Work}
+Oceanic oil spill detection has transitioned from empirical candidate-based methods to deep learning frameworks. However, a systematic gap remains in the physical grounding of these models. This section critiques existing architectures and identifies the unresolved gap in structural disambiguation.
+
+\subsection{Critique of Standard Segmentation Architectures}
+The U-Net architecture \cite{ronneberger2015unet} utilizes symmetric skip-connections to preserve resolution. However, in high-speckle SAR environments, these core connections transmit multiplicative noise directly into the decoder, leading to fragmented masks and high false-alarm rates. Similarly, DeepLabV3+ \cite{chen2018deeplabv3plus} utilizes Atrous Spatial Pyramid Pooling (ASPP) to expand the receptive field, yet remains fundamentally susceptible to intensity-mimicry. Standard CNNs fail here because they rely on textural contrast, which is physically identical between oil slicks and biogenic films in low-wind regimes.
+
+\subsection{Evolution of SAR-Specific Literature}
+Oil spill detection was pioneered by statistical feature extraction techniques \cite{solberg2007oil, brekke2005oil}, which established geometric metrics for slick discrimination. While robust, these methods lack the autonomous generalization capability of modern neural backbones. Recent reviews \cite{alruzouq2020sensors, zhu2017deep} highlight the transition toward Convolutional Neural Networks (CNNs). However, architectures like MCAN \cite{li2021mcan} focus primarily on data-scarcity problems rather than the underlying boundary physics. The "lookalike problem" persists because these models treat SAR as simple intensity imagery rather than a coherent sensing product of surface-roughness.
+
+\subsection{Lookalike Discrimination and Physics-Informed ML}
+Differentiating between petroleum and biogenic slicks requires the analysis of surface-tension damping properties \cite{topouzelis2007detection, skrunes2014oil}. While multi-polarization SAR offers partial solutions, it is rarely integrated into end-to-end segmentation latent spaces. Physics-Informed Neural Networks (PINNs) \cite{raissi2019pinn, karniadakis2021physics} provide a mathematical basis for embedding such constraints. However, most remote sensing implementations use physics only as soft loss-regularizers. 
+
+\textit{The Unresolved Gap:} There is a fundamental absence of architectures that integrate second-order physical derivatives (Laplacian gradients) as a primary latent modality. Without this grounding, models cannot achieve the 99\%+ precision required for high-stakes maritime deployment, as they remain physically blind to the viscous boundary damping that separates mechanical spills from biological phenomena.

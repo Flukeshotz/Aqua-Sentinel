@@ -1,0 +1,15 @@
+\section{Introduction}
+Operational maritime oil spill response is a critical high-stakes challenge where the cost of a false positive—triggering the deployment of containment fleets and response teams to a non-hazardous slick—is estimated in the hundreds of thousands of dollars ($O(10^5)$ USD). While Synthetic Aperture Radar (SAR) provides essential all-weather surveillance, traditional intensity-based interpretation is fundamentally ambiguous. Oceanic oil slicks appear as dark regions due to capillary wave suppression \cite{solberg2007oil}, yet these signatures are physically mimicked by biogenic films and atmospheric phenomena, collectively termed ``lookalikes.'' Standard segmentation models fail in these environments because they optimize for pixel-wise contrast rather than the underlying boundary physics, leading to unacceptable false-alarm rates in production pipelines.
+
+\textit{The Unsolved Gap:} Existing deep learning architectures for SAR segmentation remain decoupled from the physical constraints of the oceanic surface. Specifically, intensity-only backbones cannot distinguish between the viscous damping of crude oil and the spectral signatures of biogenic "lookalikes," as they lack a dedicated latent modality for surface-tension derivatives. This creates a reliability gap that hinders the adoption of fully autonomous environmental surveillance systems.
+
+To bridge this gap, we propose the AQUA-SENTINEL V9, a Deployment-Centric Physics-Guided Dual-Encoder (PGDE) architecture. By explicitly injecting physical structural priors—specifically second-order Laplacian gradients—into the neural latent space, the framework disambiguates spills based on their viscosity-induced boundary characteristics. 
+
+The primary contributions of this work are:
+\begin{enumerate}
+    \item \textbf{Physics-Guided Feature Injection}: A modular branch that embeds Laplacian variance and log-mapping transforms after Stage-1 extraction, ensuring that high-frequency physical boundaries ground the neural activations before semantic distortion.
+    \item \textbf{Dual-Encoder Gated Fusion}: A symmetric backbone using learned gating to dynamically prioritize SAR structural tokens over ambient RGB spectral glint in heterogeneous sea states.
+    \item \textbf{Auxiliary False-Positive (FP) Suppression Head}: An integrated classification module that gates the segmentation bottleneck, forcing the network to learn discriminative features for verified petroleum signatures.
+    \item \textbf{Precision-Recall Trade-off Analysis}: A demonstration of the shift from high-recall baseline regimes to a 99.66\% precision operational regime, directly addressing the economic requirements of maritime surveillance.
+    \item \textbf{Deployment-Centric Constraint Layer (PIECL)}: A deterministic post-inference module that enforces physically valid spill localization by constraining predictions to water-only, low-frequency regions, bridging the gap between neural inference and real-world operational reliability.
+\end{enumerate}
